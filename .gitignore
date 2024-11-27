@@ -1,0 +1,4 @@
+./.idea
+
+# We do not push this file because it's generated after building the spring projet (as I know)
+./EApp.SpringAPI/target
