@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  api:
+    container_name: api_spring_container
+    build:
+      context: ./EApp.SpringAPI
+      dockerfile: Dockerfile
+    volumes:
+      - ./API:/API_Spring
+    ports:
+      - 8080:8080
