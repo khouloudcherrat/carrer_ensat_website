@@ -1,4 +1,4 @@
-package com.ashraf.quickstart;
+package com.ENSATApp.EApp;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/")
-public class HelloWorldController {
+public class controller {
 
     @GetMapping(path = "/hello")
     public String helloWorld(){
