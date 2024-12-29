@@ -8,11 +8,11 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.ENSATApp.EApp.JwtTokenProvider;
 import com.ENSATApp.EApp.models.LoginInfo;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.repositories.LoginInfoRepository;
 import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
-import com.ENSATApp.EApp.JwtTokenProvider;
 
 @Service
 public class AuthService {
@@ -113,4 +113,23 @@ public class AuthService {
 
         return token;
     }
+
+    // Update the password
+    public String updatePassword(String email, String oldPassword, String newPassword) {
+        // Fetch the user by email
+        LoginInfo user = loginInfoRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+    
+        // Check if the old password matches
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+    
+        // Update the password
+        user.setPassword(passwordEncoder.encode(newPassword));
+        loginInfoRepository.save(user);
+    
+        return "Password updated successfully";
+    }
 }
+
