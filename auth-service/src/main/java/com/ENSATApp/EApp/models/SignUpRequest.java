@@ -4,8 +4,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Objects;
 
 @Document(collection = "sign_up_requests")
 public class SignUpRequest {
@@ -19,6 +22,7 @@ public class SignUpRequest {
     private String role; // "student" or "alumni"
     @Field("form_details")
     private Map<String, Object> formDetails;
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime createdAt = LocalDateTime.now();
     public String getId() {
         return id;
@@ -73,6 +77,40 @@ public class SignUpRequest {
     }
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    @Override
+    public String toString() {
+        return "SignUpRequest {" +
+                "id='" + id + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", cinCard='" + cinCard + '\'' +
+                ", branch='" + branch + '\'' +
+                ", role='" + role + '\'' +
+                ", formDetails=" + formDetails +
+                ", createdAt=" + createdAt +
+                '}';
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SignUpRequest that = (SignUpRequest) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(firstName, that.firstName) &&
+                Objects.equals(lastName, that.lastName) &&
+                Objects.equals(email, that.email) &&
+                Objects.equals(cinCard, that.cinCard) &&
+                Objects.equals(branch, that.branch) &&
+                Objects.equals(role, that.role) &&
+                Objects.equals(formDetails, that.formDetails) &&
+                Objects.equals(createdAt, that.createdAt);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, firstName, lastName, email, cinCard, branch, role, formDetails, createdAt);
     }
 }
 
