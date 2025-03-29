@@ -55,11 +55,11 @@ public class AuthService {
         // Delete sign-up request after approval
         signUpRequestRepository.deleteById(requestId);
 
-        // Send email with login credentials
-        sendEmail(request.getEmail(), "Your Account is Approved", 
-                  "Your account has been approved.\n\nUsername: " + request.getEmail() +
-                  "\nPassword: " + rawPassword + 
-                  "\n\nPlease log in and change your password immediately.");
+        // // Send email with login credentials
+        // sendEmail(request.getEmail(), "Your Account is Approved", 
+        //           "Your account has been approved.\n\nUsername: " + request.getEmail() +
+        //           "\nPassword: " + rawPassword + 
+        //           "\n\nPlease log in and change your password immediately.");
     }
 
     // Reject the sign-up request
