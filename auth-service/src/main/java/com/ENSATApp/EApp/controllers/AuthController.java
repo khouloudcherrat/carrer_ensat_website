@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ENSATApp.EApp.LoginRequest;
 import com.ENSATApp.EApp.PasswordUpdateRequest;
+import com.ENSATApp.EApp.models.LoginInfo;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.services.AuthService;
 
@@ -37,7 +37,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        String token = authService.login(loginRequest.getEmail(), loginRequest.getPassword());
+        String token = authService.login(loginRequest);
         return ResponseEntity.ok(Map.of("token", token));
     }
 

@@ -14,7 +14,7 @@ import java.security.Key;
 @Component
 public class JwtTokenProvider {
 
-    private final String secretKey = "YourSecretKey"; // Use a secure key from environment variables
+    private final String secretKey = "ThisIsAnEvenStrongerJWTSecretKeyForProductionUse_ChangeMe123456789!"; // Use a secure key from environment variables
     private final long validityInMilliseconds = 3600000; // 1 hour validity
 
     // Generate a JWT token
@@ -59,4 +59,3 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 }
-
