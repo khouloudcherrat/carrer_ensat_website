@@ -4,25 +4,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.ENSATApp.EApp.models.LoginInfo;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.repositories.LoginInfoRepository;
 import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
-import com.ENSATApp.EApp.services.AuthService;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;
 
+import factories.LoginInfoFactory;
 import factories.SignUpRequestFactory;
 
 @SpringBootTest
@@ -33,6 +33,8 @@ public class AuthControllerTest {
     SignUpRequestRepository signUpRequestRepository; 
     @Autowired
     LoginInfoRepository loginInfoRepository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     @BeforeAll
     public static void setUp() {
@@ -73,5 +75,29 @@ public class AuthControllerTest {
         assertNotNull(result);
         assertEquals(saved_request.getEmail(), result.getEmail() );
 
+    }
+
+    @Test
+    void loginTest() {
+        // Create a loginInfo object 
+        LoginInfo loginInfo = LoginInfoFactory.create();
+                
+        // Create a loginRequest DTO object with similar infos of loginInfo object
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(loginInfo.getEmail());
+        String rawPassword = loginInfo.getPassword();
+        loginRequest.setPassword(rawPassword);
+
+        // Encode the password and save the loginInfo in the database
+        loginInfo.setPassword(passwordEncoder.encode(loginInfo.getPassword()));
+        loginInfoRepository.save(loginInfo);
+
+        ResponseEntity<?> response = authController.login(loginRequest);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode()); // Check HTTP 200 OK
+        assertNotNull(response.getBody()); // Check body is not null
+
+        Map<?, ?> body = (Map<?, ?>) response.getBody();
+        assertNotNull(body.get("token")); // Ensure token exists
     }
 }

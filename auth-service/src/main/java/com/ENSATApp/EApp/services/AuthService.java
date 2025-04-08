@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.ENSATApp.EApp.JwtTokenProvider;
 import com.ENSATApp.EApp.models.LoginInfo;
+import com.ENSATApp.EApp.controllers.LoginRequest; // Import LoginRequest
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.repositories.LoginInfoRepository;
 import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
@@ -98,13 +99,12 @@ public class AuthService {
     }
 
     // Login operation
-    public String login(String email, String rawPassword) {
+    public String login(LoginRequest loginRequest) { // Change parameter to LoginRequest
         // Fetch user by email
-        LoginInfo loginInfo = loginInfoRepository.findByEmail(email)
+        LoginInfo loginInfo = loginInfoRepository.findByEmail(loginRequest.getEmail()) // Use loginRequest
                 .orElseThrow(() -> new RuntimeException("Invalid email or password"));
-
         // Verify password
-        if (!passwordEncoder.matches(rawPassword, loginInfo.getPassword())) {
+        if (!passwordEncoder.matches(loginRequest.getPassword(), loginInfo.getPassword())) { // Use loginRequest
             throw new RuntimeException("Invalid email or password");
         }
 
@@ -132,4 +132,3 @@ public class AuthService {
         return "Password updated successfully";
     }
 }
-
