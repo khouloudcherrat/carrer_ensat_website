@@ -3,10 +3,11 @@ package com.ENSATApp.EApp.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
+import java.util.Optional;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import com.ENSATApp.EApp.PasswordUpdateRequest;
 import com.ENSATApp.EApp.models.LoginInfo;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.repositories.LoginInfoRepository;
@@ -44,6 +46,12 @@ public class AuthControllerTest {
         for (String collectionName : database.listCollectionNames()) {
             database.getCollection(collectionName).deleteMany(new org.bson.Document());
         }
+    }
+
+    @BeforeEach
+    public void cleanDatabase() {
+        loginInfoRepository.deleteAll();
+        signUpRequestRepository.deleteAll();
     }
 
     @Test
@@ -99,5 +107,22 @@ public class AuthControllerTest {
 
         Map<?, ?> body = (Map<?, ?>) response.getBody();
         assertNotNull(body.get("token")); // Ensure token exists
+    }
+
+    @Test
+    void updatePasswordTest(){
+        // Create and save a loginInfo
+        LoginInfo loginInfo = LoginInfoFactory.create();
+        String rawPassword = loginInfo.getPassword();
+
+        // Encode the password and save the loginInfo in the database
+        loginInfo.setPassword(passwordEncoder.encode(rawPassword));
+        loginInfoRepository.save(loginInfo);
+
+        // Update the password
+        PasswordUpdateRequest passwordUpdateRequest = new PasswordUpdateRequest(loginInfo.getEmail(), rawPassword, "newPassword");
+        ResponseEntity<String> response = authController.updatePassword(passwordUpdateRequest);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode()); // Check HTTP 200 OK
     }
 }
