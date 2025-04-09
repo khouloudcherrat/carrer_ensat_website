@@ -12,6 +12,7 @@ import com.ENSATApp.EApp.JwtTokenProvider;
 import com.ENSATApp.EApp.models.LoginInfo;
 import com.ENSATApp.EApp.controllers.LoginRequest; // Import LoginRequest
 import com.ENSATApp.EApp.models.SignUpRequest;
+import com.ENSATApp.EApp.PasswordUpdateRequest; // Import PasswordUpdateRequest
 import com.ENSATApp.EApp.repositories.LoginInfoRepository;
 import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
 
@@ -115,18 +116,17 @@ public class AuthService {
     }
 
     // Update the password
-    public String updatePassword(String email, String oldPassword, String newPassword) {
+    public String updatePassword(PasswordUpdateRequest request) {
         // Fetch the user by email
-        LoginInfo user = loginInfoRepository.findByEmail(email)
+        LoginInfo user = loginInfoRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
-    
         // Check if the old password matches
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
             throw new RuntimeException("Old password is incorrect");
         }
     
         // Update the password
-        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
         loginInfoRepository.save(user);
     
         return "Password updated successfully";

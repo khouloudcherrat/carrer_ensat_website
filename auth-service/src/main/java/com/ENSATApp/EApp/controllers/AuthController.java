@@ -44,9 +44,10 @@ public class AuthController {
     @PostMapping("/update-password")
     public ResponseEntity<String> updatePassword(@RequestBody PasswordUpdateRequest request) {
         try {
-            String response = authService.updatePassword(request.getEmail(), request.getOldPassword(), request.getNewPassword());
+            String response = authService.updatePassword(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
+            System.out.println(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()));
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }

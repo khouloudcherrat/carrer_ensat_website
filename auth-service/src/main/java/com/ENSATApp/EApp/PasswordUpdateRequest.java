@@ -5,6 +5,12 @@ public class PasswordUpdateRequest {
     private String oldPassword;
     private String newPassword;
 
+    public PasswordUpdateRequest(String email, String oldPassword, String newPassword) {
+        this.email = email;
+        this.oldPassword = oldPassword;
+        this.newPassword = newPassword;
+    }
+
     // Getters and setters
     public String getEmail() {
         return email;
