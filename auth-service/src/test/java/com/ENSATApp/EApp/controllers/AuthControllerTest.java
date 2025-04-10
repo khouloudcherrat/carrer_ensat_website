@@ -3,9 +3,9 @@ package com.ENSATApp.EApp.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import java.util.Optional;
 import java.util.Map;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,6 +43,15 @@ public class AuthControllerTest {
         MongoClient client = MongoClients.create("mongodb://localhost:27017");
         MongoDatabase database = client.getDatabase("ensat_carrer_app");
         // Clear all collections to ensure the test environment is clean
+        for (String collectionName : database.listCollectionNames()) {
+            database.getCollection(collectionName).deleteMany(new org.bson.Document());
+        }
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        MongoClient client = MongoClients.create("mongodb://localhost:27017");
+        MongoDatabase database = client.getDatabase("ensat_carrer_app");
         for (String collectionName : database.listCollectionNames()) {
             database.getCollection(collectionName).deleteMany(new org.bson.Document());
         }
