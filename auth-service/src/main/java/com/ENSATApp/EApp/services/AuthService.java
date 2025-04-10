@@ -103,7 +103,7 @@ public class AuthService {
     public String login(LoginRequest loginRequest) { // Change parameter to LoginRequest
         // Fetch user by email
         LoginInfo loginInfo = loginInfoRepository.findByEmail(loginRequest.getEmail()) // Use loginRequest
-                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+                .orElseThrow(() -> new RuntimeException("Invalid email"));
         // Verify password
         if (!passwordEncoder.matches(loginRequest.getPassword(), loginInfo.getPassword())) { // Use loginRequest
             throw new RuntimeException("Invalid email or password");
