@@ -1,1 +1,74 @@
-<p>register works!</p>
+<h2>Créer un compte</h2>
+
+<form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+  <div>
+    <label>Prénom</label>
+    <input type="text" formControlName="firstName" />
+  </div>
+
+  <div>
+    <label>Nom</label>
+    <input type="text" formControlName="lastName" />
+  </div>
+
+  <div>
+    <label>CIN</label>
+    <input type="text" formControlName="cinCard" />
+  </div>
+
+  <div>
+    <label>Email</label>
+    <input type="email" formControlName="email" />
+  </div>
+
+  <div>
+    <label>Statut</label>
+    <select formControlName="role" (change)="onRoleChange(registerForm.get('role')?.value)">
+      <option value="">-- Choisir --</option>
+      <option value="student">Étudiant</option>
+      <option value="alumni">Lauréat</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Filière</label>
+    <select formControlName="branch">
+      <option value="">-- Choisir --</option>
+      <option value="GSR">Génie Systèmes et Réseaux (GSR)</option>
+      <option value="GSEA">Génie des Systèmes Electroniques et Automatique (GSEA)</option>
+      <option value="GINF">Génie Informatique (GINF)</option>
+      <option value="GIND">Génie Industriel (GIND)</option>
+      <option value="G2EI">Génie Énergétique et Environnement Industriel (G2EI)</option>
+      <option value="CSI">Cybersecurity and Cyberintelligence (CSI)</option>
+    </select>
+  </div>
+
+  <!-- Champs spécifiques à student -->
+  <div *ngIf="role === 'student'">
+    <div>
+      <label>Année d’admission</label>
+      <input type="number" formControlName="yearOfAdmission" />
+    </div>
+    <div>
+      <label>Niveau d’étude</label>
+      <input type="text" formControlName="educationalLevel" />
+    </div>
+  </div>
+
+  <!-- Champs spécifiques à alumni -->
+  <div *ngIf="role === 'alumni'">
+    <div>
+      <label>Année de diplomation</label>
+      <input type="number" formControlName="graduationYear" />
+    </div>
+    <div>
+      <label>Statut professionnel</label>
+      <select formControlName="professionalStatus">
+        <option value="seeking job">En recherche d’emploi</option>
+        <option value="working">En poste</option>
+      </select>
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="registerForm.invalid">S'inscrire</button>
+</form>
