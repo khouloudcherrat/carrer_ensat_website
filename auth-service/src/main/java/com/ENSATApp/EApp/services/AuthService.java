@@ -3,10 +3,14 @@ package com.ENSATApp.EApp.services;
 import java.security.SecureRandom;
 import java.util.Random;
 
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.ENSATApp.EApp.JwtTokenProvider;
 import com.ENSATApp.EApp.models.LoginInfo;
@@ -23,6 +27,8 @@ public class AuthService {
     private final JavaMailSender mailSender;
     private final BCryptPasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    @Value("${frontend.base-url}")
+    private String frontendBaseUrl;
 
     public AuthService(SignUpRequestRepository signUpRequestRepository,
                        LoginInfoRepository loginInfoRepository, BCryptPasswordEncoder passwordEncoder,
@@ -59,9 +65,12 @@ public class AuthService {
 
         // Send email with login credentials
         sendEmail(request.getEmail(), "Your Account is Approved", 
-                  "Your account has been approved.\n\nUsername: " + request.getEmail() +
-                  "\nPassword: " + rawPassword + 
-                  "\n\nPlease log in and change your password immediately.");
+                  "<p>Your account has been approved.</p>" +
+                  "<p><strong>Username:</strong> " + request.getEmail() + "<br>" +
+                  "<strong>Password:</strong> " + rawPassword + "</p>" +
+                  "<p>To change your password, please click the following link:<br>" +
+                  "<a href='" + frontendBaseUrl + "/update-password'>Change your password</a></p>" +
+                  "<p><em>Please log in and change your password immediately.</em></p>");
     }
 
     // Reject the sign-up request
@@ -91,12 +100,17 @@ public class AuthService {
     }
 
     // Send email
-    private void sendEmail(String to, String subject, String body) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(body);
-        mailSender.send(message);
+    private void sendEmail(String to, String subject, String htmlBody) {
+        MimeMessage message = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlBody, true); // true enables HTML
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email", e);
+        }
     }
 
     // Login operation

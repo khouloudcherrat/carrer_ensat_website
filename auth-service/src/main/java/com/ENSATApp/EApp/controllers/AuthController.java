@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ENSATApp.EApp.PasswordUpdateRequest;
-import com.ENSATApp.EApp.models.LoginInfo;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.services.AuthService;
 
