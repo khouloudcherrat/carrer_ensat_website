@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,13 @@ export class AuthService {
     return this.http.post<any>('http://localhost:8081/api/auth/login', {
       email,
       password
-    });
+    }).pipe(
+      tap(response => {
+        if (response.token) {
+          localStorage.setItem('authToken', response.token);
+        }
+      })
+    );
   }
 
   signUp(data: any) {
