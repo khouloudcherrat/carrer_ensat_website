@@ -3,6 +3,7 @@ package com.ENSATApp.EApp.controllers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
@@ -76,25 +77,6 @@ public class AuthControllerTest {
     }
 
     @Test
-    void approveRequestTest(){
-        // Creating a sign-up request
-        SignUpRequest request = SignUpRequestFactory.create();
-        SignUpRequest saved_request = authController.signUp(request).getBody();
-
-        // Approve the request
-        authController.approveRequest(saved_request.getId());
-
-        // Verify if the request was deleted from sign-up requests
-        assertNull(signUpRequestRepository.findById(saved_request.getId()).orElse(null));
-
-        //verify it exists in login info and that mail adresses are matching
-        LoginInfo result = loginInfoRepository.findByEmail(request.getEmail()).orElse(null);
-        assertNotNull(result);
-        assertEquals(saved_request.getEmail(), result.getEmail() );
-
-    }
-
-    @Test
     void loginTest() {
         // Create a loginInfo object 
         LoginInfo loginInfo = LoginInfoFactory.create();
@@ -134,4 +116,56 @@ public class AuthControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode()); // Check HTTP 200 OK
     }
+
+    @Test
+    void getAllSignUpRequestsTest(){
+        // Create and save multiple sign-up requests
+        for (int i = 0; i < 5; i++) {
+            SignUpRequest request = SignUpRequestFactory.create();
+            authController.signUp(request);
+        }
+
+        // Call the endpoint
+        ResponseEntity<List<SignUpRequest>> response = authController.getAllSignUpRequests();
+
+        // Validate the response
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        List<SignUpRequest> requests = response.getBody();
+        assertNotNull(requests);
+        assertEquals(5, requests.size());
+    }
+
+    @Test
+    void approveRequestTest(){
+        // Creating a sign-up request
+        SignUpRequest request = SignUpRequestFactory.create();
+        SignUpRequest saved_request = authController.signUp(request).getBody();
+
+        // Approve the request
+        authController.approveRequest(saved_request.getId());
+
+        // Verify if the request was deleted from sign-up requests
+        assertNull(signUpRequestRepository.findById(saved_request.getId()).orElse(null));
+
+        //verify it exists in login info and that mail adresses are matching
+        LoginInfo result = loginInfoRepository.findByEmail(request.getEmail()).orElse(null);
+        assertNotNull(result);
+        assertEquals(saved_request.getEmail(), result.getEmail() );
+
+    }
+
+    @Test
+    void rejectRequestTest(){
+        // Creating a sign-up request
+        SignUpRequest request = SignUpRequestFactory.create();
+        SignUpRequest saved_request = authController.signUp(request).getBody();
+
+        // Approve the request
+        authController.rejectRequest(saved_request.getId());
+
+        // Verify if the request was deleted from sign-up requests
+        assertNull(signUpRequestRepository.findById(saved_request.getId()).orElse(null));
+    }
+
+
 }
