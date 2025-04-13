@@ -1,24 +1,25 @@
 package com.ENSATApp.EApp.services;
 
 import java.security.SecureRandom;
+import java.util.List; // Import List
 import java.util.Random;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 
 import com.ENSATApp.EApp.JwtTokenProvider;
-import com.ENSATApp.EApp.models.LoginInfo;
-import com.ENSATApp.EApp.controllers.LoginRequest; // Import LoginRequest
-import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.PasswordUpdateRequest; // Import PasswordUpdateRequest
+import com.ENSATApp.EApp.controllers.LoginRequest; // Import LoginRequest
+import com.ENSATApp.EApp.models.LoginInfo;
+import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.repositories.LoginInfoRepository;
 import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class AuthService {
@@ -43,6 +44,22 @@ public class AuthService {
     // Submit sign-up request
     public SignUpRequest submitSignUpRequest(SignUpRequest request) {
         return signUpRequestRepository.save(request);
+    }
+
+    // Login operation
+    public String login(LoginRequest loginRequest) { // Change parameter to LoginRequest
+        // Fetch user by email
+        LoginInfo loginInfo = loginInfoRepository.findByEmail(loginRequest.getEmail()) // Use loginRequest
+                .orElseThrow(() -> new RuntimeException("Invalid email"));
+        // Verify password
+        if (!passwordEncoder.matches(loginRequest.getPassword(), loginInfo.getPassword())) { // Use loginRequest
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        // Generate JWT token
+        String token = jwtTokenProvider.generateToken(loginInfo.getEmail(), loginInfo.getRole());
+
+        return token;
     }
 
     // Approve sign-up request
@@ -88,6 +105,11 @@ public class AuthService {
                   "If you believe this is a mistake, please contact support.");
     }
 
+    // Get all sign-up requests
+    public List<SignUpRequest> getAllSignUpRequests() {
+        return signUpRequestRepository.findAll();
+    }
+
     // Generate a random password
     private String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
@@ -111,22 +133,6 @@ public class AuthService {
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
         }
-    }
-
-    // Login operation
-    public String login(LoginRequest loginRequest) { // Change parameter to LoginRequest
-        // Fetch user by email
-        LoginInfo loginInfo = loginInfoRepository.findByEmail(loginRequest.getEmail()) // Use loginRequest
-                .orElseThrow(() -> new RuntimeException("Invalid email"));
-        // Verify password
-        if (!passwordEncoder.matches(loginRequest.getPassword(), loginInfo.getPassword())) { // Use loginRequest
-            throw new RuntimeException("Invalid email or password");
-        }
-
-        // Generate JWT token
-        String token = jwtTokenProvider.generateToken(loginInfo.getEmail(), loginInfo.getRole());
-
-        return token;
     }
 
     // Update the password
