@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
+import { SseService } from '../../shared/sse.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -11,10 +12,13 @@ import { CommonModule, NgFor, NgIf } from '@angular/common';
 export class DashboardComponent implements OnInit {
   signUpRequests: any[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private sseService: SseService) {}
 
   ngOnInit() {
     this.loadRequests();
+    this.sseService.connect('http://localhost:8081/api/sse/updates', () => {
+      this.loadRequests();
+    });
   }
 
   private loadRequests() {

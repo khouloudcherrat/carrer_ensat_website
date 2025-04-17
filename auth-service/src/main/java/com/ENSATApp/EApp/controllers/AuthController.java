@@ -15,14 +15,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ENSATApp.EApp.PasswordUpdateRequest;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.services.AuthService;
+import com.ENSATApp.EApp.services.SseService;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
     private final AuthService authService;
+    private final SseService sseService;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, SseService sseService) {
         this.authService = authService;
+        this.sseService = sseService;
     }
 
     @PostMapping("/signup")
@@ -55,12 +58,14 @@ public class AuthController {
     @PostMapping("/admin/sign-up-requests/{id}/approve")
     public ResponseEntity<String> approveRequest(@PathVariable String id) {
         authService.approveSignUpRequest(id);
+        sseService.notifyClients();
         return ResponseEntity.ok("Sign-up request approved and credentials sent via email.");
     }
 
     @PostMapping("/admin/sign-up-requests/{id}/reject")
     public ResponseEntity<String> rejectRequest(@PathVariable String id) {
         authService.rejectSignUpRequest(id);
+        sseService.notifyClients();
         return ResponseEntity.ok("Sign-up request rejected.");
     }
 
