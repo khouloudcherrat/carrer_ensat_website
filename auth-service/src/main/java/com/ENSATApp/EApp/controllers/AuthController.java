@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,28 +46,30 @@ public class AuthController {
             String response = authService.updatePassword(request);
             return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
-            System.out.println(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()));
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/admin/sign-up-requests")
     public ResponseEntity<List<SignUpRequest>> getAllSignUpRequests() {
         return ResponseEntity.ok(authService.getAllSignUpRequests());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/sign-up-requests/{id}/approve")
     public ResponseEntity<String> approveRequest(@PathVariable String id) {
         authService.approveSignUpRequest(id);
         sseService.notifyClients();
         return ResponseEntity.ok("Sign-up request approved and credentials sent via email.");
     }
-
+    
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/admin/sign-up-requests/{id}/reject")
-    public ResponseEntity<String> rejectRequest(@PathVariable String id) {
+    public ResponseEntity<Map<String,String>> rejectRequest(@PathVariable String id) {
         authService.rejectSignUpRequest(id);
         sseService.notifyClients();
-        return ResponseEntity.ok("Sign-up request rejected.");
+        return ResponseEntity.ok(Map.of("message", "Sign-up request rejected."));
     }
 
 }

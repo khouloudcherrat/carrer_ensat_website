@@ -58,7 +58,6 @@ public class AuthService {
 
         // Generate JWT token
         String token = jwtTokenProvider.generateToken(loginInfo.getEmail(), loginInfo.getRole());
-
         return token;
     }
 
