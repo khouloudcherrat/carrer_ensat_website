@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ENSATApp.EApp.PasswordUpdateRequest;
+import com.ENSATApp.EApp.models.Partner;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.services.AuthService;
 import com.ENSATApp.EApp.services.SseService;
@@ -70,6 +71,28 @@ public class AuthController {
         authService.rejectSignUpRequest(id);
         sseService.notifyClients();
         return ResponseEntity.ok(Map.of("message", "Sign-up request rejected."));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/all-partners")
+    public ResponseEntity<List<Partner>> getAllPartners() {
+        return ResponseEntity.ok(authService.getAllPartners());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/unregistred-partners")
+    public ResponseEntity<List<Partner>> getUnregistredPartners() {
+        return ResponseEntity.ok(authService.getUnregistredPartners());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/admin/partners/{id}/send-credentials")
+    public ResponseEntity<Map<String,String>> sendCredentialsToPartner(@PathVariable String id) {
+
+        
+        authService.sendCredentialsToPartner(id);
+        sseService.notifyClients();
+        return ResponseEntity.ok(Map.of("message", "Credentials sent successfully."));
     }
 
 }

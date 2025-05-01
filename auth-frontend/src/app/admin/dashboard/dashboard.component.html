@@ -22,4 +22,31 @@
         </td>
       </tr>
     </tbody>
-  </table>
+</table>
+
+<select [(ngModel)]="selectedPartnerFilter" (ngModelChange)="loadPartners()" [disabled]="isLoading">
+  <option value="all">Tous</option>
+  <option value="unregistered">Non enregistrés</option>
+</select>
+
+<h3>Partenaires</h3>
+<table>
+  <tr>
+    <th>Nom</th>
+    <th>Email</th>
+    <th>Organisation</th>
+    <th>Contact</th>
+    <th *ngIf="selectedPartnerFilter === 'unregistered'">Actions</th>
+  </tr>
+  <tr *ngFor="let partner of partners">
+    <td>{{ partner.name }}</td>
+    <td>{{ partner.email }}</td>
+    <td>{{ partner.organization }}</td>
+    <td>{{ partner.contact }}</td>
+    <td *ngIf="selectedPartnerFilter === 'unregistered'">
+      <button [disabled]="sendingId === partner.id" (click)="sendCredentials(partner.id)">
+        {{ sendingId === partner.id ? 'Envoi...' : 'Envoyer identifiants' }}
+      </button>
+    </td>
+  </tr>
+</table>

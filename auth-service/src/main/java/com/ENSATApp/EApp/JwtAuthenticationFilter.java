@@ -37,7 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String tokenParam = request.getParameter("token");
             if (tokenParam != null) {
                 authHeader = "Bearer " + tokenParam;
-                System.out.println("✅ Token found in URL parameter");
             }
         }
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -48,7 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 List<GrantedAuthority> authorities = new ArrayList<>();
                 String role = jwtTokenProvider.getRoleFromToken(token);
-                System.out.println("Extracted ROLE from token: " + role);
                 if (role != null) {
                     authorities.add(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()));
                 }

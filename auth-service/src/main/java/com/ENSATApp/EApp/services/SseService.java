@@ -23,7 +23,6 @@ public class SseService {
     }
 
     public void notifyClients() {
-        System.out.println("Sending update to clients...");
         List<SseEmitter> deadEmitters = new CopyOnWriteArrayList<>();
 
         for (SseEmitter emitter : emitters) {

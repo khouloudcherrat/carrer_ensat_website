@@ -14,8 +14,10 @@ import com.ENSATApp.EApp.JwtTokenProvider;
 import com.ENSATApp.EApp.PasswordUpdateRequest; // Import PasswordUpdateRequest
 import com.ENSATApp.EApp.controllers.LoginRequest; // Import LoginRequest
 import com.ENSATApp.EApp.models.LoginInfo;
+import com.ENSATApp.EApp.models.Partner;
 import com.ENSATApp.EApp.models.SignUpRequest;
 import com.ENSATApp.EApp.repositories.LoginInfoRepository;
+import com.ENSATApp.EApp.repositories.PartnerRepository;
 import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
 
 import jakarta.mail.MessagingException;
@@ -24,6 +26,7 @@ import jakarta.mail.internet.MimeMessage;
 @Service
 public class AuthService {
     private final SignUpRequestRepository signUpRequestRepository;
+    private final PartnerRepository partnerRepository;
     private final LoginInfoRepository loginInfoRepository;
     private final JavaMailSender mailSender;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -33,8 +36,9 @@ public class AuthService {
 
     public AuthService(SignUpRequestRepository signUpRequestRepository,
                        LoginInfoRepository loginInfoRepository, BCryptPasswordEncoder passwordEncoder,
-                       JavaMailSender mailSender, JwtTokenProvider jwtTokenProvider) {
+                       JavaMailSender mailSender, JwtTokenProvider jwtTokenProvider, PartnerRepository partnerRepository) {
         this.signUpRequestRepository = signUpRequestRepository;
+        this.partnerRepository = partnerRepository;
         this.loginInfoRepository = loginInfoRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender; // Initialize mail sender
@@ -150,4 +154,55 @@ public class AuthService {
     
         return "Password updated successfully";
     }
+
+    // Retrieve all partners
+    public List<Partner> getAllPartners() {
+        return partnerRepository.findAll();
+    }
+
+    public List<Partner> getUnregistredPartners() {
+        List<Partner> allPartners = partnerRepository.findAll();
+        List<String> registeredEmails = loginInfoRepository.findAll().stream()
+            .map(LoginInfo::getEmail)
+            .toList();
+    
+        return allPartners.stream()
+            .filter(p -> !registeredEmails.contains(p.getEmail()))
+            .toList();
+    }
+
+    // Send credentials to a partner
+    public void sendCredentialsToPartner(String partnerId) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new RuntimeException("Partner not found"));
+
+        // Generate random password
+        String rawPassword = generateRandomPassword();
+
+        // Save login info
+        LoginInfo loginInfo = new LoginInfo();
+        loginInfo.setEmail(partner.getEmail());
+        loginInfo.setPassword(passwordEncoder.encode(rawPassword)); // Store hashed password
+        loginInfo.setRole("Partner");
+        loginInfoRepository.save(loginInfo);
+
+        // Send email with login credentials
+        sendEmail(partner.getEmail(), "Access to ENSAT Career Platform", 
+            "<p>Hello,</p>" +
+            "<p>You are now registered as a representative of <strong>" + partner.getOrganization() + "</strong>.</p>" +
+            "<p>Here are your login credentials:</p>" +
+            "<ul>" +
+            "<li><strong>Username:</strong> " + partner.getEmail() + "</li>" +
+            "<li><strong>Password:</strong> " + rawPassword + "</li>" +
+            "</ul>" +
+            "<p>You can access the platform here: <a href='" + frontendBaseUrl + "'>" + frontendBaseUrl + "</a></p>" +
+            "<p>Please change your password immediately after logging in by visiting the following page:<br>" +
+            "<a href='" + frontendBaseUrl + "/update-password'>Change your password</a></p>" +
+            "<p>Best regards,<br>ENSAT Career Platform Team</p>");
+    }
+
+
+
+    
+    
 }

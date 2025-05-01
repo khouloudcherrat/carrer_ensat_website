@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { SignUpRequest } from './models/sign-up-request.model';
+import { Partner } from '../models/partner.model';
 
 @Injectable({
   providedIn: 'root'
@@ -41,5 +42,17 @@ export class AuthService {
 
   rejectSignUpRequest(id: string) {
     return this.http.post<any>(`http://localhost:8081/api/auth/admin/sign-up-requests/${id}/reject`, {});
+  }
+
+  getAllPartners(): Observable<Partner[]> {
+    return this.http.get<Partner[]>('http://localhost:8081/api/auth/admin/all-partners', {});
+  }
+
+  getUnregisteredPartners(): Observable<Partner[]> {
+    return this.http.get<Partner[]>('http://localhost:8081/api/auth/admin/unregistred-partners', {});
+  }
+  
+  sendPartnerCredentials(id: string): Observable<any> {
+    return this.http.post(`http://localhost:8081/api/auth/admin/partners/${id}/send-credentials`, {});
   }
 }
