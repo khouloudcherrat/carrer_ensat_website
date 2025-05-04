@@ -1,0 +1,52 @@
+<table>
+    <thead>
+      <tr>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th>Date d'inscription</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let request of signUpRequests">
+        <td>{{ request.lastName }}</td>
+        <td>{{ request.firstName }}</td>
+        <td>{{ request.email }}</td>
+        <td>{{ request.role }}</td>
+        <td>{{ request.createdAt | date: 'short' }}</td>
+        <td>
+          <button (click)="approve(request.id)">Approuver</button>
+          <button (click)="reject(request.id)">Rejeter</button>
+        </td>
+      </tr>
+    </tbody>
+</table>
+
+<select [(ngModel)]="selectedPartnerFilter" (ngModelChange)="loadPartners()" [disabled]="isLoading">
+  <option value="all">Tous</option>
+  <option value="unregistered">Non enregistrés</option>
+</select>
+
+<h3>Partenaires</h3>
+<table>
+  <tr>
+    <th>Nom</th>
+    <th>Email</th>
+    <th>Organisation</th>
+    <th>Contact</th>
+    <th *ngIf="selectedPartnerFilter === 'unregistered'">Actions</th>
+  </tr>
+  <tr *ngFor="let partner of partners">
+    <td>{{ partner.name }}</td>
+    <td>{{ partner.email }}</td>
+    <td>{{ partner.organization }}</td>
+    <td>{{ partner.contact }}</td>
+    <td *ngIf="selectedPartnerFilter === 'unregistered'">
+      <button [disabled]="sendingId === partner.id" (click)="sendCredentials(partner.id)">
+        {{ sendingId === partner.id ? 'Envoi...' : 'Envoyer identifiants' }}
+      </button>
+    </td>
+  </tr>
+</table>

@@ -1,28 +1,32 @@
-package com.ENSATApp.EApp.services;
+package com.ENSATApp.EApp.service;
 
 import java.security.SecureRandom;
+import java.util.List; // Import List
 import java.util.Random;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 
-import com.ENSATApp.EApp.JwtTokenProvider;
-import com.ENSATApp.EApp.models.LoginInfo;
-import com.ENSATApp.EApp.controllers.LoginRequest; // Import LoginRequest
-import com.ENSATApp.EApp.models.SignUpRequest;
-import com.ENSATApp.EApp.PasswordUpdateRequest; // Import PasswordUpdateRequest
-import com.ENSATApp.EApp.repositories.LoginInfoRepository;
-import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
+import com.ENSATApp.EApp.config.security.JwtTokenProvider;
+import com.ENSATApp.EApp.dto.LoginRequest;
+import com.ENSATApp.EApp.dto.PasswordUpdateRequest;
+import com.ENSATApp.EApp.model.LoginInfo;
+import com.ENSATApp.EApp.model.Partner;
+import com.ENSATApp.EApp.model.SignUpRequest;
+import com.ENSATApp.EApp.repository.LoginInfoRepository;
+import com.ENSATApp.EApp.repository.PartnerRepository;
+import com.ENSATApp.EApp.repository.SignUpRequestRepository;
+
+import jakarta.mail.MessagingException;
+import jakarta.mail.internet.MimeMessage;
 
 @Service
 public class AuthService {
     private final SignUpRequestRepository signUpRequestRepository;
+    private final PartnerRepository partnerRepository;
     private final LoginInfoRepository loginInfoRepository;
     private final JavaMailSender mailSender;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -32,8 +36,9 @@ public class AuthService {
 
     public AuthService(SignUpRequestRepository signUpRequestRepository,
                        LoginInfoRepository loginInfoRepository, BCryptPasswordEncoder passwordEncoder,
-                       JavaMailSender mailSender, JwtTokenProvider jwtTokenProvider) {
+                       JavaMailSender mailSender, JwtTokenProvider jwtTokenProvider, PartnerRepository partnerRepository) {
         this.signUpRequestRepository = signUpRequestRepository;
+        this.partnerRepository = partnerRepository;
         this.loginInfoRepository = loginInfoRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailSender = mailSender; // Initialize mail sender
@@ -43,6 +48,21 @@ public class AuthService {
     // Submit sign-up request
     public SignUpRequest submitSignUpRequest(SignUpRequest request) {
         return signUpRequestRepository.save(request);
+    }
+
+    // Login operation
+    public String login(LoginRequest loginRequest) { // Change parameter to LoginRequest
+        // Fetch user by email
+        LoginInfo loginInfo = loginInfoRepository.findByEmail(loginRequest.getEmail()) // Use loginRequest
+                .orElseThrow(() -> new RuntimeException("Invalid email"));
+        // Verify password
+        if (!passwordEncoder.matches(loginRequest.getPassword(), loginInfo.getPassword())) { // Use loginRequest
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        // Generate JWT token
+        String token = jwtTokenProvider.generateToken(loginInfo.getEmail(), loginInfo.getRole());
+        return token;
     }
 
     // Approve sign-up request
@@ -88,6 +108,11 @@ public class AuthService {
                   "If you believe this is a mistake, please contact support.");
     }
 
+    // Get all sign-up requests
+    public List<SignUpRequest> getAllSignUpRequests() {
+        return signUpRequestRepository.findAll();
+    }
+
     // Generate a random password
     private String generateRandomPassword() {
         String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$!";
@@ -113,22 +138,6 @@ public class AuthService {
         }
     }
 
-    // Login operation
-    public String login(LoginRequest loginRequest) { // Change parameter to LoginRequest
-        // Fetch user by email
-        LoginInfo loginInfo = loginInfoRepository.findByEmail(loginRequest.getEmail()) // Use loginRequest
-                .orElseThrow(() -> new RuntimeException("Invalid email"));
-        // Verify password
-        if (!passwordEncoder.matches(loginRequest.getPassword(), loginInfo.getPassword())) { // Use loginRequest
-            throw new RuntimeException("Invalid email or password");
-        }
-
-        // Generate JWT token
-        String token = jwtTokenProvider.generateToken(loginInfo.getEmail(), loginInfo.getRole());
-
-        return token;
-    }
-
     // Update the password
     public String updatePassword(PasswordUpdateRequest request) {
         // Fetch the user by email
@@ -145,4 +154,55 @@ public class AuthService {
     
         return "Password updated successfully";
     }
+
+    // Retrieve all partners
+    public List<Partner> getAllPartners() {
+        return partnerRepository.findAll();
+    }
+
+    public List<Partner> getUnregistredPartners() {
+        List<Partner> allPartners = partnerRepository.findAll();
+        List<String> registeredEmails = loginInfoRepository.findAll().stream()
+            .map(LoginInfo::getEmail)
+            .toList();
+    
+        return allPartners.stream()
+            .filter(p -> !registeredEmails.contains(p.getEmail()))
+            .toList();
+    }
+
+    // Send credentials to a partner
+    public void sendCredentialsToPartner(String partnerId) {
+        Partner partner = partnerRepository.findById(partnerId)
+                .orElseThrow(() -> new RuntimeException("Partner not found"));
+
+        // Generate random password
+        String rawPassword = generateRandomPassword();
+
+        // Save login info
+        LoginInfo loginInfo = new LoginInfo();
+        loginInfo.setEmail(partner.getEmail());
+        loginInfo.setPassword(passwordEncoder.encode(rawPassword)); // Store hashed password
+        loginInfo.setRole("Partner");
+        loginInfoRepository.save(loginInfo);
+
+        // Send email with login credentials
+        sendEmail(partner.getEmail(), "Access to ENSAT Career Platform", 
+            "<p>Hello,</p>" +
+            "<p>You are now registered as a representative of <strong>" + partner.getOrganization() + "</strong>.</p>" +
+            "<p>Here are your login credentials:</p>" +
+            "<ul>" +
+            "<li><strong>Username:</strong> " + partner.getEmail() + "</li>" +
+            "<li><strong>Password:</strong> " + rawPassword + "</li>" +
+            "</ul>" +
+            "<p>You can access the platform here: <a href='" + frontendBaseUrl + "'>" + frontendBaseUrl + "</a></p>" +
+            "<p>Please change your password immediately after logging in by visiting the following page:<br>" +
+            "<a href='" + frontendBaseUrl + "/update-password'>Change your password</a></p>" +
+            "<p>Best regards,<br>ENSAT Career Platform Team</p>");
+    }
+
+
+
+    
+    
 }

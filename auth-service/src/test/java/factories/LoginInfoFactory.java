@@ -1,6 +1,6 @@
 package factories;
+import com.ENSATApp.EApp.model.LoginInfo;
 import com.github.javafaker.Faker;
-import com.ENSATApp.EApp.models.LoginInfo;
 
 public class LoginInfoFactory {
     private static final Faker faker = new Faker();

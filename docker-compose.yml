@@ -1,11 +1,35 @@
-version: '3.8'
+version: "3.8"
 services:
-  api:
-    container_name: api_spring_container
-    build:
-      context: ./EApp.SpringAPI
-      dockerfile: Dockerfile
-    volumes:
-      - ./API:/API_Spring
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
     ports:
-      - 8081:8081
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./docker/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      MONGO_INITDB_DATABASE: ensat_carrer_app
+
+  auth-service:
+    build:
+      context: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mongodb
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/ensat_carrer_app
+
+  frontend:
+    build:
+      context: ./auth-frontend
+    container_name: frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - auth-service
+
+volumes:
+  mongodb_data:

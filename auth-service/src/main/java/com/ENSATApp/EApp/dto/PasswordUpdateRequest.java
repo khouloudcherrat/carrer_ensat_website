@@ -1,4 +1,4 @@
-package com.ENSATApp.EApp;
+package com.ENSATApp.EApp.dto;
 
 public class PasswordUpdateRequest {
     private String email;

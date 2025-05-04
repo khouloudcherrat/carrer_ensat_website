@@ -1,4 +1,4 @@
-package com.ENSATApp.EApp.controllers;
+package com.ENSATApp.EApp.dto;
 
 public class LoginRequest {
     private String email;

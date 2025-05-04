@@ -1,4 +1,5 @@
-package com.ENSATApp.EApp;
+package com.ENSATApp.EApp.config.security;
+
 import java.util.Date;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -57,5 +58,15 @@ public class JwtTokenProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return claims.getSubject();
+    }
+
+    // Extract role from the JWT token
+    public String getRoleFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey.getBytes())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return (String) claims.get("role");
     }
 }

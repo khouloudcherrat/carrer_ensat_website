@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../auth.service';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -15,7 +16,7 @@ export class RegisterComponent {
   registerForm: FormGroup;
   role: string = '';
 
-  constructor(private fb: FormBuilder, private authService: AuthService) {
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
     this.registerForm = this.fb.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
@@ -76,6 +77,7 @@ export class RegisterComponent {
       this.authService.signUp(payload).subscribe({
         next: response => {
           console.log('Inscription réussie ✅', response);
+          this.router.navigate(['/thank-you']);
         },
         error: err => {
           console.error('Erreur d’inscription ❌', err);
