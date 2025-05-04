@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
-import { SignUpRequest } from './models/sign-up-request.model';
-import { Partner } from '../models/partner.model';
+import { SignUpRequest } from '../core/models/sign-up-request.model';
+import { Partner } from '../core/models/partner.model';
 
 @Injectable({
   providedIn: 'root'

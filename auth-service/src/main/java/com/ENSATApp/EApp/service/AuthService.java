@@ -1,4 +1,4 @@
-package com.ENSATApp.EApp.services;
+package com.ENSATApp.EApp.service;
 
 import java.security.SecureRandom;
 import java.util.List; // Import List
@@ -10,15 +10,15 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.ENSATApp.EApp.JwtTokenProvider;
-import com.ENSATApp.EApp.PasswordUpdateRequest; // Import PasswordUpdateRequest
-import com.ENSATApp.EApp.controllers.LoginRequest; // Import LoginRequest
-import com.ENSATApp.EApp.models.LoginInfo;
-import com.ENSATApp.EApp.models.Partner;
-import com.ENSATApp.EApp.models.SignUpRequest;
-import com.ENSATApp.EApp.repositories.LoginInfoRepository;
-import com.ENSATApp.EApp.repositories.PartnerRepository;
-import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
+import com.ENSATApp.EApp.config.security.JwtTokenProvider;
+import com.ENSATApp.EApp.dto.LoginRequest;
+import com.ENSATApp.EApp.dto.PasswordUpdateRequest;
+import com.ENSATApp.EApp.model.LoginInfo;
+import com.ENSATApp.EApp.model.Partner;
+import com.ENSATApp.EApp.model.SignUpRequest;
+import com.ENSATApp.EApp.repository.LoginInfoRepository;
+import com.ENSATApp.EApp.repository.PartnerRepository;
+import com.ENSATApp.EApp.repository.SignUpRequestRepository;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

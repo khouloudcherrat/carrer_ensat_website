@@ -1,4 +1,4 @@
-package com.ENSATApp.EApp;
+package com.ENSATApp.EApp.config.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../auth/auth.service';
 import { CommonModule, NgFor, NgIf } from '@angular/common';
 import { SseService } from '../../shared/sse.service';
-import { Partner } from '../../models/partner.model';
+import { Partner } from '../../core/models/partner.model';
 import { FormsModule } from '@angular/forms';
 
 @Component({

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import com.ENSATApp.EApp.services.SseService;
+import com.ENSATApp.EApp.service.SseService;
 
 @RestController
 @RequestMapping("/api/sse")

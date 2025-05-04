@@ -3,10 +3,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+import com.ENSATApp.EApp.model.SignUpRequest;
 import com.github.javafaker.Faker;
 
-
-import com.ENSATApp.EApp.models.SignUpRequest;
 import java.util.HashMap;
 
 public class SignUpRequestFactory {

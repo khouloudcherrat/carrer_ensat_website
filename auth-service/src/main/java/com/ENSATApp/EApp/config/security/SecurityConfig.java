@@ -1,4 +1,4 @@
-package com.ENSATApp.EApp;
+package com.ENSATApp.EApp.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

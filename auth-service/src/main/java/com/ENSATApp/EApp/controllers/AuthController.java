@@ -13,11 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ENSATApp.EApp.PasswordUpdateRequest;
-import com.ENSATApp.EApp.models.Partner;
-import com.ENSATApp.EApp.models.SignUpRequest;
-import com.ENSATApp.EApp.services.AuthService;
-import com.ENSATApp.EApp.services.SseService;
+import com.ENSATApp.EApp.dto.LoginRequest;
+import com.ENSATApp.EApp.dto.PasswordUpdateRequest;
+import com.ENSATApp.EApp.model.Partner;
+import com.ENSATApp.EApp.model.SignUpRequest;
+import com.ENSATApp.EApp.service.AuthService;
+import com.ENSATApp.EApp.service.SseService;
 
 @RestController
 @RequestMapping("/api/auth")

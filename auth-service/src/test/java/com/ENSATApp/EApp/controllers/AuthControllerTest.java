@@ -16,11 +16,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import com.ENSATApp.EApp.PasswordUpdateRequest;
-import com.ENSATApp.EApp.models.LoginInfo;
-import com.ENSATApp.EApp.models.SignUpRequest;
-import com.ENSATApp.EApp.repositories.LoginInfoRepository;
-import com.ENSATApp.EApp.repositories.SignUpRequestRepository;
+import com.ENSATApp.EApp.dto.LoginRequest;
+import com.ENSATApp.EApp.dto.PasswordUpdateRequest;
+import com.ENSATApp.EApp.model.LoginInfo;
+import com.ENSATApp.EApp.model.SignUpRequest;
+import com.ENSATApp.EApp.repository.LoginInfoRepository;
+import com.ENSATApp.EApp.repository.SignUpRequestRepository;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoDatabase;

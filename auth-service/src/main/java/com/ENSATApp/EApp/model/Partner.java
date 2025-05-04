@@ -1,4 +1,4 @@
-package com.ENSATApp.EApp.models;
+package com.ENSATApp.EApp.model;
 import java.time.Instant;
 
 import org.springframework.data.annotation.Id;
