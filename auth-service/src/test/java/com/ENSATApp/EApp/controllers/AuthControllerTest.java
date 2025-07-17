@@ -1,5 +1,6 @@
 package com.ENSATApp.EApp.controllers;
 
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -14,7 +15,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import com.ENSATApp.EApp.dto.LoginRequest;
 import com.ENSATApp.EApp.dto.PasswordUpdateRequest;
@@ -63,6 +67,12 @@ public class AuthControllerTest {
     public void cleanDatabase() {
         loginInfoRepository.deleteAll();
         signUpRequestRepository.deleteAll();
+    }
+
+    @BeforeEach
+    public void setupAuthentication() {
+        TestingAuthenticationToken auth = new TestingAuthenticationToken("admin", "password", "ROLE_ADMIN");
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
     @Test
@@ -117,7 +127,8 @@ public class AuthControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode()); // Check HTTP 200 OK
     }
-
+    
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Test
     void getAllSignUpRequestsTest(){
         // Create and save multiple sign-up requests
@@ -136,6 +147,7 @@ public class AuthControllerTest {
         assertEquals(5, requests.size());
     }
 
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Test
     void approveRequestTest(){
         // Creating a sign-up request
@@ -154,7 +166,7 @@ public class AuthControllerTest {
         assertEquals(saved_request.getEmail(), result.getEmail() );
 
     }
-
+    @WithMockUser(username = "admin", roles = {"ADMIN"})
     @Test
     void rejectRequestTest(){
         // Creating a sign-up request
