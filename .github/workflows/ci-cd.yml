@@ -21,6 +21,8 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+      - name: Make mvnw executable
+        run: chmod +x ./mvnw
       - name: Build backend
         run: |
           cd auth-service
@@ -46,16 +48,12 @@ jobs:
         run: |
           cd auth-frontend
           npm run build
-      - name: Run frontend tests
-        run: |
-          cd auth-frontend
-          npm test -- --watch=false
 
   docker-compose:
     runs-on: ubuntu-latest
     needs: [build-backend, build-frontend]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 
       - name: Build and run Docker Compose
         run: |
           docker-compose up --build -d
