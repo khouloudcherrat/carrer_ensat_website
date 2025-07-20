@@ -90,7 +90,8 @@ jobs:
             --image europe-west9-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/carrer-project-repo/auth-service:latest \
             --platform managed \
             --region europe-west9 \
-            --allow-unauthenticated
+            --allow-unauthenticated \
+            --set-env-vars SPRING_DATA_MONGODB_URI='${{ secrets.MONGODB_URI }}'
   
       # Deploy frontend to Cloud Run
       - name: Deploy frontend to Cloud Run
