@@ -1,0 +1,103 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-backend:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build backend
+        run: |
+          cd auth-service
+          chmod +x ./mvnw
+          ./mvnw clean package -DskipTests
+      - name: Run backend tests
+        run: |
+          cd auth-service
+          ./mvnw test
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install dependencies
+        run: |
+          cd auth-frontend
+          npm ci
+      - name: Build frontend
+        run: |
+          cd auth-frontend
+          npm run build
+
+  deploy-to-gcp:
+    runs-on: ubuntu-latest
+    needs: [build-backend, build-frontend]
+    steps:
+      - uses: actions/checkout@v4
+  
+      # Authenticate to Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SA_KEY }}'
+  
+      # Set up gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
+  
+      # Configure Docker for Artifact Registry
+      - name: Configure Docker for Artifact Registry
+        run: |
+          gcloud auth configure-docker europe-west9-docker.pkg.dev
+  
+      # Build and push backend image
+      - name: Build and push backend image
+        run: |
+          docker build -t europe-west9-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/carrer-project-repo/auth-service:latest ./auth-service
+          docker push europe-west9-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/carrer-project-repo/auth-service:latest
+  
+      # Build and push frontend image
+      - name: Build and push frontend image
+        run: |
+          docker build -t europe-west9-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/carrer-project-repo/frontend:latest ./auth-frontend
+          docker push europe-west9-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/carrer-project-repo/frontend:latest
+  
+      # Deploy backend to Cloud Run
+      - name: Deploy backend to Cloud Run
+        run: |
+          gcloud run deploy auth-service \
+            --image europe-west9-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/carrer-project-repo/auth-service:latest \
+            --platform managed \
+            --region europe-west9 \
+            --allow-unauthenticated \
+            --set-env-vars SPRING_DATA_MONGODB_URI='${{ secrets.MONGODB_URI }}'
+  
+      # Deploy frontend to Cloud Run
+      - name: Deploy frontend to Cloud Run
+        run: |
+          gcloud run deploy frontend \
+            --image europe-west9-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/carrer-project-repo/frontend:latest \
+            --platform managed \
+            --region europe-west9 \
+            --allow-unauthenticated

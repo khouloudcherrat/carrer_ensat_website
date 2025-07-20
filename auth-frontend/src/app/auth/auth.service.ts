@@ -9,10 +9,10 @@ import { Partner } from '../core/models/partner.model';
   providedIn: 'root'
 })
 export class AuthService {
-
+  private API_BASE_URL = 'https://auth-service-338013605344.europe-west9.run.app/api/auth';
   constructor(private http: HttpClient) { }
   login(email: string, password: string) {
-    return this.http.post<any>('http://localhost:8081/api/auth/login', {
+    return this.http.post<any>(`${this.API_BASE_URL}/login`, {
       email,
       password
     }).pipe(
@@ -25,34 +25,34 @@ export class AuthService {
   }
 
   signUp(data: any) {
-    return this.http.post<any>('http://localhost:8081/api/auth/signup', data);
+    return this.http.post<any>(`${this.API_BASE_URL}/signup`, data);
   }
 
   updatePassword(data: { email: string; oldPassword: string; newPassword: string }) {
-    return this.http.post<any>('http://localhost:8081/api/auth/update-password', data);
+    return this.http.post<any>(`${this.API_BASE_URL}/update-password`, data);
   }
 
   getSignUpRequests(): Observable<SignUpRequest[]> {
-    return this.http.get<SignUpRequest[]>('http://localhost:8081/api/auth/admin/sign-up-requests');
+    return this.http.get<SignUpRequest[]>(`${this.API_BASE_URL}/admin/sign-up-requests`);
   }
 
   approveSignUpRequest(id: string) {
-    return this.http.post<any>(`http://localhost:8081/api/auth/admin/sign-up-requests/${id}/approve`, {});
+    return this.http.post<any>(`${this.API_BASE_URL}/admin/sign-up-requests/${id}/approve`, {});
   }
 
   rejectSignUpRequest(id: string) {
-    return this.http.post<any>(`http://localhost:8081/api/auth/admin/sign-up-requests/${id}/reject`, {});
+    return this.http.post<any>(`${this.API_BASE_URL}/admin/sign-up-requests/${id}/reject`, {});
   }
 
   getAllPartners(): Observable<Partner[]> {
-    return this.http.get<Partner[]>('http://localhost:8081/api/auth/admin/all-partners', {});
+    return this.http.get<Partner[]>(`${this.API_BASE_URL}/admin/all-partners`, {});
   }
 
   getUnregisteredPartners(): Observable<Partner[]> {
-    return this.http.get<Partner[]>('http://localhost:8081/api/auth/admin/unregistred-partners', {});
+    return this.http.get<Partner[]>(`${this.API_BASE_URL}/admin/unregistered-partners`, {});
   }
   
   sendPartnerCredentials(id: string): Observable<any> {
-    return this.http.post(`http://localhost:8081/api/auth/admin/partners/${id}/send-credentials`, {});
+    return this.http.post(`${this.API_BASE_URL}/admin/partners/${id}/send-credentials`, {});
   }
 }

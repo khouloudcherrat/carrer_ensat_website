@@ -13,5 +13,5 @@ COPY src src
 
 RUN ./mvnw clean package -DskipTests
 
-EXPOSE 8081
+EXPOSE 8080
 CMD ["java", "-jar", "target/EApp-0.0.1-SNAPSHOT.jar"]
