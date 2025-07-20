@@ -9,7 +9,7 @@ import { Partner } from '../core/models/partner.model';
   providedIn: 'root'
 })
 export class AuthService {
-  private API_BASE_URL = 'http://localhost:8081/api/auth';
+  private API_BASE_URL = 'https://auth-service-338013605344.europe-west9.run.app/api/auth';
   constructor(private http: HttpClient) { }
   login(email: string, password: string) {
     return this.http.post<any>(`${this.API_BASE_URL}/login`, {

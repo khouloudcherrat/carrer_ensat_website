@@ -23,7 +23,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit() {
     this.refreshData();
-    this.sseService.connect('http://localhost:8081/api/sse/updates', this.refreshData.bind(this));
+    this.sseService.connect('https://auth-service-338013605344.europe-west9.run.app/api/sse/updates', this.refreshData.bind(this));
   }
   
   private refreshData() {
